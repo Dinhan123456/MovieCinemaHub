@@ -58,6 +58,15 @@ public class MovieController {
         return seatRepository.findByShowtimeId(id);
     }
 
+    @GetMapping("/showtimes/{id}/seat-summary")
+    public Map<String, Object> getSeatSummary(@PathVariable Long id) {
+        List<Seat> list = seatRepository.findByShowtimeId(id);
+        long total = list.size();
+        long sold = list.stream().filter(Seat::isSold).count();
+        long available = total - sold;
+        return Map.of("total", total, "sold", sold, "available", available);
+    }
+
     @PostMapping("/bookings")
     public ResponseEntity<Map<String, Object>> createBooking(@Valid @RequestBody BookingRequest request) {
         // Basic seat check + mark sold

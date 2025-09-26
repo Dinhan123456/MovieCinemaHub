@@ -8,6 +8,9 @@ import com.codegym.moviebe.repository.MovieRepository;
 import com.codegym.moviebe.repository.SeatRepository;
 import com.codegym.moviebe.repository.ShowtimeRepository;
 import com.codegym.moviebe.repository.RoleRepository;
+import com.codegym.moviebe.repository.UserRepository;
+import com.codegym.moviebe.entity.User;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -18,13 +21,26 @@ import java.util.Arrays;
 public class DataInitializer {
 
     @Bean
-    CommandLineRunner seedMovies(MovieRepository movieRepository, RoleRepository roleRepository, ShowtimeRepository showtimeRepository, SeatRepository seatRepository) {
+    CommandLineRunner seedMovies(MovieRepository movieRepository, RoleRepository roleRepository, ShowtimeRepository showtimeRepository, SeatRepository seatRepository, UserRepository userRepository) {
         return args -> {
             if (roleRepository.findByName("ROLE_USER").isEmpty()) {
                 roleRepository.save(Role.builder().name("ROLE_USER").build());
             }
             if (roleRepository.findByName("ROLE_ADMIN").isEmpty()) {
                 roleRepository.save(Role.builder().name("ROLE_ADMIN").build());
+            }
+
+            // seed admin user if absent
+            if (userRepository.findByUsername("admin").isEmpty()) {
+                var adminRole = roleRepository.findByName("ROLE_ADMIN").get();
+                var enc = new BCryptPasswordEncoder();
+                userRepository.save(User.builder()
+                        .username("admin")
+                        .password(enc.encode("admin123"))
+                        .fullName("Administrator")
+                        .email("admin@gmail.com")
+                        .roles(java.util.Set.of(adminRole))
+                        .build());
             }
 
             if (movieRepository.count() > 0) return;
