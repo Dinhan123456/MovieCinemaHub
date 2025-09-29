@@ -23,12 +23,15 @@ public class AdminController {
 
     // Movies
     @GetMapping("/movies")
+    @PreAuthorize("hasRole('ADMIN')")
     public List<Movie> listMovies() { return movieRepository.findAll(); }
 
     @PostMapping("/movies")
+    @PreAuthorize("hasRole('ADMIN')")
     public Movie createMovie(@RequestBody Movie m) { return movieRepository.save(m); }
 
     @PutMapping("/movies/{id}")
+    @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<Movie> updateMovie(@PathVariable Long id, @RequestBody Movie m) {
         return movieRepository.findById(id)
                 .map(old -> { m.setId(old.getId()); return ResponseEntity.ok(movieRepository.save(m)); })
@@ -36,6 +39,7 @@ public class AdminController {
     }
 
     @DeleteMapping("/movies/{id}")
+    @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<Void> deleteMovie(@PathVariable Long id) {
         if (!movieRepository.existsById(id)) return ResponseEntity.notFound().build();
         movieRepository.deleteById(id);
@@ -44,15 +48,18 @@ public class AdminController {
 
     // Showtimes
     @GetMapping("/movies/{movieId}/showtimes")
+    @PreAuthorize("hasRole('ADMIN')")
     public List<Showtime> listShowtimes(@PathVariable Long movieId) { return showtimeRepository.findByMovieId(movieId); }
 
     @PostMapping("/movies/{movieId}/showtimes")
+    @PreAuthorize("hasRole('ADMIN')")
     public Showtime createShowtime(@PathVariable Long movieId, @RequestBody Showtime st) {
         st.setMovieId(movieId);
         return showtimeRepository.save(st);
     }
 
     @PutMapping("/showtimes/{id}")
+    @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<Showtime> updateShowtime(@PathVariable Long id, @RequestBody Showtime st) {
         return showtimeRepository.findById(id)
                 .map(old -> { st.setId(old.getId()); st.setMovieId(old.getMovieId()); return ResponseEntity.ok(showtimeRepository.save(st)); })
@@ -60,6 +67,7 @@ public class AdminController {
     }
 
     @DeleteMapping("/showtimes/{id}")
+    @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<Void> deleteShowtime(@PathVariable Long id) {
         if (!showtimeRepository.existsById(id)) return ResponseEntity.notFound().build();
         showtimeRepository.deleteById(id);
